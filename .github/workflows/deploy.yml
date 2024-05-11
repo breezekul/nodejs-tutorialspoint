@@ -39,7 +39,7 @@ jobs:
     steps:
     - name: Deploy to EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.SSH_PRIVATE_KEY }}") ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} -p ${{ secrets.SSH_PORT }} << EOF
+        ssh -o StrictHostKeyChecking=no -v -i <(echo "${{ secrets.SSH_PRIVATE_KEY }}") ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} -p ${{ secrets.SSH_PORT }} << EOF
           # Login to Amazon ECR
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
           
