@@ -40,7 +40,7 @@ jobs:
     - name: Deploy to EC2
       run: |
         # SSH into your EC2 instance
-        ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} -p ${{ secrets.SSH_PORT }} << EOF
+        ssh -i <(echo "${{ secrets.SSH_PRIVATE_KEY }}") ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} -p ${{ secrets.SSH_PORT }} << EOF
           # Pull the Docker image from Amazon ECR
           docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest
 
