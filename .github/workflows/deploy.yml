@@ -39,14 +39,10 @@ jobs:
     steps:
     - name: Deploy to EC2
       run: |
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/server-test.pem
-        chmod 600 /tmp/server-test.pem
-
-        ssh -i /tmp/server-test.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} -p ${{ secrets.SSH_PORT }} << EOF
+        ssh -i <(echo "${{ secrets.SSH_PRIVATE_KEY }}") ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} -p ${{ secrets.SSH_PORT }} << EOF
           # Pull the Docker image from Amazon ECR
           docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest
 
           # Run the Docker container
-          docker run -dit -h nodejs-tutorialspoint-kulnaree --name nodejs-tutorialspoint-kulnaree -p 8080:8080 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest
+          docker run -dit -h nodejs-tutorialspoint-kulnaree --name nodejs-tutorialspoint-kulnaree -p 8081:8081 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest
         EOF
-        rm -f /tmp/server-test.pem
