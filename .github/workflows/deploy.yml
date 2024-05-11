@@ -39,12 +39,6 @@ jobs:
     steps:
     - name: Deploy to EC2
       run: |
-        # Example: ssh into your EC2 instance and pull the Docker image
-        docker run -dit -h nodejs-tutorialspoint-kulnaree --name nodejs-tutorialspoint-kulnaree -p 8080:8080 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest
-
-    steps:
-    - name: Deploy to EC2
-      run: |
         # SSH into your EC2 instance
         ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} -p ${{ secrets.SSH_PORT }} << EOF
           # Pull the Docker image from Amazon ECR
