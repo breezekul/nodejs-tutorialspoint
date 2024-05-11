@@ -32,18 +32,22 @@ jobs:
     - name: Push Docker image to Amazon ECR
       run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest
 
+jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Deploy to EC2
-      run: |
-        # SSH into your EC2 instance
-        ssh -i <(echo "${{ secrets.SSH_PRIVATE_KEY }}") ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} -p ${{ secrets.SSH_PORT }} << EOF
-          # Pull the Docker image from Amazon ECR
-          docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
-          # Run the Docker container
-          docker run -dit -h nodejs-tutorialspoint-kulnaree --name nodejs-tutorialspoint-kulnaree -p 8080:8081 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest
-        EOF
+    - name: Start Session Manager session
+      run: aws ssm start-session --target ${{ secrets.EC2_INSTANCE_ID }}
+
+    - name: Run Docker container
+      run: |
+        aws ssm start-session --target ${{ secrets.EC2_INSTANCE_ID }} --document-name AWS-StartInteractiveCommand --parameters "command=['docker pull ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest', 'docker run -dit -h nodejs-tutorialspoint-kulnaree --name nodejs-tutorialspoint-kulnaree -p 8080:8080 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest']"
