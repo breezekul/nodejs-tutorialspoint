@@ -1,0 +1,55 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      run: aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+
+    - name: Build Docker image
+      run: |
+        docker build -t nodejs-tutorialspoint-kulnaree .
+        docker tag nodejs-tutorialspoint-kulnaree:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest
+
+    - name: Push Docker image to Amazon ECR
+      run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy to EC2
+      run: |
+        # Example: ssh into your EC2 instance and pull the Docker image
+        docker run -dit -h nodejs-tutorialspoint-kulnaree --name nodejs-tutorialspoint-kulnaree -p 8080:8080 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest
+
+    steps:
+    - name: Deploy to EC2
+      run: |
+        # SSH into your EC2 instance
+        ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} -p ${{ secrets.SSH_PORT }} << EOF
+          # Pull the Docker image from Amazon ECR
+          docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest
+
+          # Run the Docker container
+          docker run -dit -h nodejs-tutorialspoint-kulnaree --name nodejs-tutorialspoint-kulnaree -p 8080:8081 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest
+        EOF

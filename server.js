@@ -1,31 +1,18 @@
-
-
-
-//console.log( __filename );
-//console.log( __dirname );
-// npm install express --save
-//npm install body-parser --save
-//npm install cookie-parser --save
-//npm install multer --save
 var express = require('express');
 var app = express();
 var fs = require("fs");
 var bodyParser = require('body-parser');
-var multer  = require('multer')
-var upload = multer({ dest: 'uploads/' })
-var cookieParser = require('cookie-parser')
+var multer  = require('multer');
+var upload = multer({ dest: 'uploads/' });
+var cookieParser = require('cookie-parser');
 
-
-//app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser())
-//app.use(multer({ dest: '/tmp/'}));
-
+app.use(cookieParser());
 
 app.get('/', function(req, res) {
-   console.log("Cookies: ", req.cookies)
+   console.log("Cookies: ", req.cookies);
 });
 
 app.get('/index.htm', function (req, res) {
@@ -37,15 +24,13 @@ app.get('/uploadfile.html', function (req, res) {
 });
 
 app.get('/process_get', function (req, res) {
-   // Prepare output in JSON format
-  var  response = {
+   var response = {
       first_name:req.query.first_name,
       last_name:req.query.last_name
    };
    console.log(response);
    res.end(JSON.stringify(response));
 });
-
 
 app.post('/file_upload', function (req, res) {
    console.log(req.files.file.name);
@@ -57,22 +42,35 @@ app.post('/file_upload', function (req, res) {
       fs.writeFile(file, data, function (err) {
          if( err ){
             console.log( err );
-            }else{
-               response = {
-                  message:'File uploaded successfully',
-                  filename:req.files.file.name
-               };
-            }
+         } else {
+            response = {
+               message:'File uploaded successfully',
+               filename:req.files.file.name
+            };
+         }
          console.log( response );
          res.end( JSON.stringify( response ) );
       });
    });
 });
 
+// Route for /live
+app.get('/live', function(req, res) {
+   // Respond with HTTP status 200
+   res.sendStatus(200);
+});
+
+// Route for /ready
+app.get('/ready', function(req, res) {
+   // Check if your application is ready (e.g., database connections, etc.)
+   // Here you can add your readiness check logic
+   // For demonstration, let's assume it's always ready
+   res.sendStatus(200);
+});
 
 var server = app.listen(8081, () => {
-   var host = server.address().address
-   var port = server.address().port
+   var host = server.address().address;
+   var port = server.address().port;
 
    console.log(`App listening at http://${host}, ${port}`);
 });
