@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Stage 2: Production (slim and optimized)
-FROM node:18-alpine
+FROM node:22-alpine3.18
 
 # Copy only the production-ready application files from the build stage
 COPY --from=build /app /app
