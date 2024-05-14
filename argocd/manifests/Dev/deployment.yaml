@@ -16,11 +16,24 @@ spec:
         - name: application-dev
           image: 392493780390.dkr.ecr.ap-southeast-1.amazonaws.com/nodejs-tutorialspoint-kulnaree:latest
           ports:
-            - containerPort: 80
+            - containerPort: 8081
           env:
             - name: ENV
               valueFrom:
                 configMapKeyRef:
                   name: app-config
                   key: ENV
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 20
+
 

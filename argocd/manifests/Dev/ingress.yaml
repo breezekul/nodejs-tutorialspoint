@@ -13,7 +13,7 @@ metadata:
     alb.ingress.kubernetes.io/success-codes: '200'
 spec:
   rules:
-    - host: dev.your-domain.example.com
+    - host: dev.qack.xyz
       http:
         paths:
           - path: /
