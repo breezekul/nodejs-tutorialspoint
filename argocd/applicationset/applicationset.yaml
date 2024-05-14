@@ -21,7 +21,7 @@ spec:
       source:
         repoURL: git@github.com:breezekul/nodejs-tutorialspoint.git
         targetRevision: master
-        path: manifests/{{env}}
+        path: argocd/manifests/{{env}}
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{namespace}}'
